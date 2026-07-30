@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-head">
+    <form method="get" style="display:flex; gap:8px;">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search products..." style="padding:9px 14px; border-radius:999px; border:2px solid #F0E2D8; font-family:inherit;">
+      <button class="btn btn-ghost btn-sm" type="submit">Search</button>
+    </form>
+    <a href="{{ url_for('admin.product_new') }}" class="btn btn-primary">+ Add New Product</a>
+  </div>
+
+  {% if products %}
+  <table class="admin-table">
+    <thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>
+          {% if p.primary_image %}
+          <img class="table-thumb" src="{{ url_for('static', filename='uploads/products/' + p.primary_image) }}" alt="">
+          {% else %}
+          <div class="table-thumb" style="display:flex;align-items:center;justify-content:center;">🎀</div>
+          {% endif %}
+        </td>
+        <td><strong>{{ p.name }}</strong>{% if p.is_featured %} ⭐{% endif %}</td>
+        <td>{{ p.category.name if p.category else '—' }}</td>
+        <td>
+          {{ CURRENCY }}{{ "%.0f"|format(p.display_price) }}
+          {% if p.is_on_sale %}<br><span style="text-decoration:line-through; color:var(--a-ink-soft); font-size:12px;">{{ CURRENCY }}{{ "%.0f"|format(p.price) }}</span>{% endif %}
+        </td>
+        <td>
+          {% if p.variants %}
+            {{ p.total_stock }} units
+          {% else %}
+            <span class="help-text">No variants</span>
+          {% endif %}
+        </td>
+        <td><span class="badge {{ 'badge-active' if p.is_active else 'badge-inactive' }}">{{ 'Active' if p.is_active else 'Hidden' }}</span></td>
+        <td>
+          <a href="{{ url_for('admin.product_edit', product_id=p.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+          <form action="{{ url_for('admin.product_delete', product_id=p.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete this product permanently?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-hint">
+    <div class="ico">👗</div>
+    <p>No products {{ 'match your search' if q else 'yet' }}.</p>
+    {% if not q %}<a href="{{ url_for('admin.product_new') }}" class="btn btn-primary">Add Your First Product</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

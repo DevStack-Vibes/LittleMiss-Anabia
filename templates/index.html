@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}{{ STORE_NAME }} — {{ STORE_TAGLINE }}{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">New Season Collection</span>
+      <h1>{{ hero_headline|safe }}</h1>
+      <p>{{ hero_sub|safe }}</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('shop.shop_all') }}" class="btn btn-primary">Shop the Collection</a>
+        <a href="#categories" class="btn btn-outline">Browse Categories</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Little Miss by Anabia">
+      <span class="hero-sparkle s1">✦</span>
+      <span class="hero-sparkle s2">🦋</span>
+      <span class="hero-sparkle s3">✧</span>
+    </div>
+  </div>
+</section>
+<div class="scallop scallop-mint"></div>
+
+<section class="section" id="categories">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Shop by</span>
+      <h2>Category</h2>
+      <p>From frilly party frocks to everyday comfy rompers.</p>
+    </div>
+    {% if categories %}
+    <div class="cat-grid">
+      {% for cat in categories %}
+      <a href="{{ url_for('shop.shop_all', category=cat.slug) }}" class="cat-card">
+        <div class="cat-thumb">
+          {% if cat.image %}
+            <img src="{{ url_for('static', filename='uploads/products/' + cat.image) }}" alt="{{ cat.name }}">
+          {% else %}
+            🎀
+          {% endif %}
+        </div>
+        <h3>{{ cat.name }}</h3>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="ico">🎀</div>
+      <p>Categories will appear here once added from the admin panel.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if featured %}
+<section class="section" style="background:var(--white);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Handpicked</span>
+      <h2>Best Sellers</h2>
+      <p>Our little customers' (and their mums') favourites.</p>
+    </div>
+    <div class="product-grid">
+      {% for p in featured %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if new_arrivals %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Just In</span>
+      <h2>New Arrivals</h2>
+      <p>Fresh off the rack — get them before they're gone.</p>
+    </div>
+    <div class="product-grid">
+      {% for p in new_arrivals %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+    <div class="text-center" style="margin-top:36px;">
+      <a href="{{ url_for('shop.shop_all') }}" class="btn btn-mint">View All Products</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if not featured and not new_arrivals %}
+<section class="section">
+  <div class="container empty-state">
+    <div class="ico">🧵</div>
+    <h3>Products coming soon!</h3>
+    <p>Log in to the admin panel to start adding your beautiful collection.</p>
+  </div>
+</section>
+{% endif %}
+
+<div class="scallop scallop-mint"></div>
+<section class="section" style="background:var(--white);">
+  <div class="container">
+    <div class="features">
+      <div class="feature-card">
+        <div class="ico">🚚</div>
+        <h4>Nationwide Delivery</h4>
+        <p>We ship to every city across Pakistan, right to your doorstep.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico">💵</div>
+        <h4>Cash on Delivery</h4>
+        <p>Pay only when your little one's outfit arrives — safe &amp; simple.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico">🧵</div>
+        <h4>Premium Fabric</h4>
+        <p>Soft, breathable materials that are gentle on delicate skin.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico">💬</div>
+        <h4>Friendly Support</h4>
+        <p>Reach us anytime on WhatsApp for sizing help or order updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Good to Know</span>
+      <h2>Frequently Asked Questions</h2>
+    </div>
+    <div class="faq">
+      <details class="faq-item" open>
+        <summary>Do you offer Cash on Delivery?</summary>
+        <div class="faq-body">Yes! Every order is COD — you only pay when the parcel is safely in your hands.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How long does delivery take?</summary>
+        <div class="faq-body">Orders are typically delivered within 3–6 working days depending on your city.</div>
+      </details>
+      <details class="faq-item">
+        <summary>What sizes do you carry?</summary>
+        <div class="faq-body">Sizes vary by style and are listed on each product page, ranging from newborn up to 10 years.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Can I exchange an item if the size doesn't fit?</summary>
+        <div class="faq-body">Absolutely — message us on WhatsApp within 3 days of delivery and we'll help sort out a size exchange.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

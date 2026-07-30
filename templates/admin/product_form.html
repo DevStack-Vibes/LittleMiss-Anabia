@@ -1,0 +1,123 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit Product' if product else 'Add Product' }}{% endblock %}
+{% block page_title %}{{ 'Edit Product' if product else 'Add New Product' }}{% endblock %}
+
+{% block content %}
+{% set new_prefix = 'new_' if product else '' %}
+<form method="post" enctype="multipart/form-data">
+  <div class="card">
+    <h2>Basic Information</h2>
+    <div class="form-row">
+      <label for="name">Product Name</label>
+      <input type="text" id="name" name="name" value="{{ product.name if product else '' }}" required placeholder="e.g. Pink Ruffle Party Frock">
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="category_id">Category</label>
+        <select id="category_id" name="category_id">
+          <option value="">— No Category —</option>
+          {% for cat in categories %}
+          <option value="{{ cat.id }}" {{ 'selected' if product and product.category_id == cat.id }}>{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="sku">SKU (optional)</label>
+        <input type="text" id="sku" name="sku" value="{{ product.sku if product else '' }}" placeholder="e.g. LMA-FR-001">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="price">Price ({{ CURRENCY }})</label>
+        <input type="number" id="price" name="price" step="0.01" min="0" value="{{ product.price if product else '' }}" required>
+      </div>
+      <div class="form-row">
+        <label for="sale_price">Sale Price ({{ CURRENCY }}) — optional</label>
+        <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" value="{{ product.sale_price if product and product.sale_price else '' }}" placeholder="Leave blank if not on sale">
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4" placeholder="Fabric, fit, care instructions...">{{ product.description if product else '' }}</textarea>
+    </div>
+    <div class="form-grid">
+      <label class="checkbox-row"><input type="checkbox" name="is_featured" {{ 'checked' if product and product.is_featured }}> Show in Best Sellers (Featured)</label>
+      <label class="checkbox-row"><input type="checkbox" name="is_active" {{ 'checked' if not product or product.is_active }}> Active (visible on store)</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Photos</h2>
+    {% if product and product.images %}
+    <div style="margin-bottom:16px;">
+      {% for img in product.images %}
+      <div class="thumb-chip">
+        <img src="{{ url_for('static', filename='uploads/products/' + img.filename) }}" alt="">
+        <label title="Remove this photo">
+          <input type="checkbox" name="remove_image" value="{{ img.id }}" style="width:auto; margin:0;">✕
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="form-row">
+      <label for="images">{{ 'Add More Photos' if product else 'Upload Photos' }}</label>
+      <input type="file" id="images" name="images" multiple accept="image/*">
+      <div class="help-text">You can select multiple images. The first photo becomes the main product image.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Sizes &amp; Stock</h2>
+      <button type="button" class="btn btn-mint btn-sm" onclick="addVariantRow()">+ Add Size</button>
+    </div>
+    <div class="help-text" style="margin-bottom:12px;">Leave empty if this product has no size variants (e.g. accessories sold as one size).</div>
+
+    {% if product and product.variants %}
+    <div style="margin-bottom:8px; font-weight:700; font-size:12.5px; color:var(--a-ink-soft); display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px;">
+      <span>Size</span><span>Color (optional)</span><span>Stock Qty</span><span></span>
+    </div>
+    {% for v in product.variants %}
+    <div class="variant-row">
+      <input type="hidden" name="variant_id" value="{{ v.id }}">
+      <input type="text" name="variant_size_existing" value="{{ v.size }}" placeholder="e.g. 2-3 Years">
+      <input type="text" name="variant_color_existing" value="{{ v.color or '' }}" placeholder="e.g. Pink">
+      <input type="number" name="variant_stock_existing" value="{{ v.stock_qty }}" min="0">
+      <label title="Remove size" style="text-align:center;">
+        <input type="checkbox" name="remove_variant" value="{{ v.id }}" style="width:auto;">✕
+      </label>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div id="variantsContainer" data-prefix="{{ new_prefix }}"></div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ 'Save Changes' if product else 'Create Product' }}</button>
+  <a href="{{ url_for('admin.products') }}" class="btn btn-ghost">Cancel</a>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function addVariantRow() {
+    const container = document.getElementById('variantsContainer');
+    const prefix = container.dataset.prefix;
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.innerHTML = `
+      <input type="text" name="${prefix}variant_size" placeholder="e.g. 2-3 Years">
+      <input type="text" name="${prefix}variant_color" placeholder="e.g. Pink">
+      <input type="number" name="${prefix}variant_stock" min="0" value="0">
+      <label title="Remove row" style="text-align:center; cursor:pointer;" onclick="this.closest('.variant-row').remove()">🗑️</label>
+    `;
+    container.appendChild(row);
+  }
+  // start every product with at least one blank size row for convenience
+  document.addEventListener('DOMContentLoaded', function () {
+    const existingCount = document.querySelectorAll('input[name="variant_id"]').length;
+    if (existingCount === 0) addVariantRow();
+  });
+</script>
+{% endblock %}

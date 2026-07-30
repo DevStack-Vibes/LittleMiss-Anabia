@@ -1,0 +1,86 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+{% set badge_map = {'Pending':'badge-pending','Confirmed':'badge-confirmed','Packed':'badge-packed','Shipped':'badge-shipped','Delivered':'badge-delivered','Cancelled':'badge-cancelled'} %}
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Total Orders</div>
+    <div class="value">{{ total_orders }}</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="label">Pending Orders</div>
+    <div class="value">{{ pending_orders }}</div>
+  </div>
+  <div class="stat-card mint">
+    <div class="label">Total Revenue</div>
+    <div class="value">{{ CURRENCY }}{{ "%.0f"|format(revenue) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Products Listed</div>
+    <div class="value">{{ total_products }}</div>
+  </div>
+</div>
+
+<div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px,1fr));">
+  <div class="stat-card mint">
+    <div class="label">Orders This Week</div>
+    <div class="value">{{ orders_this_week }}</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="label">Variants Out of Stock</div>
+    <div class="value">{{ out_of_stock_variants }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Recent Orders</h2>
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-ghost btn-sm">View All Orders</a>
+  </div>
+  {% if recent_orders %}
+  <table class="admin-table">
+    <thead><tr><th>Order #</th><th>Customer</th><th>City</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for o in recent_orders %}
+      <tr onclick="window.location='{{ url_for('admin.order_detail', order_id=o.id) }}'" style="cursor:pointer;">
+        <td><strong>{{ o.order_number }}</strong></td>
+        <td>{{ o.customer_name }}</td>
+        <td>{{ o.city }}</td>
+        <td>{{ CURRENCY }}{{ "%.0f"|format(o.total) }}</td>
+        <td><span class="badge {{ badge_map.get(o.status, '') }}">{{ o.status }}</span></td>
+        <td>{{ o.created_at.strftime('%d %b, %I:%M %p') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-hint"><div class="ico">📦</div>No orders yet — they'll show up here as soon as customers start checking out.</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Low Stock Alerts</h2>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-ghost btn-sm">Manage Products</a>
+  </div>
+  {% if low_stock %}
+  <table class="admin-table">
+    <thead><tr><th>Product</th><th>Variant</th><th>Stock Left</th></tr></thead>
+    <tbody>
+      {% for v in low_stock %}
+      <tr>
+        <td><a href="{{ url_for('admin.product_edit', product_id=v.product_id) }}">{{ v.product.name }}</a></td>
+        <td>{{ v.label }}</td>
+        <td><span class="badge badge-pending">{{ v.stock_qty }} left</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-hint"><div class="ico">✅</div>All good — no variants are running low right now.</div>
+  {% endif %}
+</div>
+{% endblock %}

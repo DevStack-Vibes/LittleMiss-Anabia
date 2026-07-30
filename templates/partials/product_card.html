@@ -1,0 +1,22 @@
+<div class="product-card">
+  <a href="{{ url_for('shop.product_detail', slug=p.slug) }}">
+    <div class="product-thumb">
+      {% if p.primary_image %}
+        <img src="{{ url_for('static', filename='uploads/products/' + p.primary_image) }}" alt="{{ p.name }}">
+      {% else %}
+        <div class="placeholder">🎀</div>
+      {% endif %}
+      {% if p.is_on_sale %}<span class="badge-sale">-{{ p.discount_percent }}%</span>{% endif %}
+      {% if p.variants and not p.in_stock %}<span class="badge-soldout">Sold Out</span>{% endif %}
+    </div>
+  </a>
+  <div class="product-info">
+    {% if p.category %}<span class="cat-label">{{ p.category.name }}</span>{% endif %}
+    <a href="{{ url_for('shop.product_detail', slug=p.slug) }}"><h3>{{ p.name }}</h3></a>
+    <div class="price-row">
+      <span class="price">{{ CURRENCY }}{{ "%.0f"|format(p.display_price) }}</span>
+      {% if p.is_on_sale %}<span class="price-strike">{{ CURRENCY }}{{ "%.0f"|format(p.price) }}</span>{% endif %}
+    </div>
+    <a href="{{ url_for('shop.product_detail', slug=p.slug) }}" class="btn btn-outline btn-sm btn-block">View Product</a>
+  </div>
+</div>

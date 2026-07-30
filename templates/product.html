@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="breadcrumb" style="margin-top:20px;">
+    <a href="{{ url_for('shop.index') }}">Home</a> /
+    <a href="{{ url_for('shop.shop_all') }}">Shop</a>
+    {% if product.category %} / <a href="{{ url_for('shop.shop_all', category=product.category.slug) }}">{{ product.category.name }}</a>{% endif %}
+    / {{ product.name }}
+  </div>
+
+  <div class="pdp">
+    <div>
+      <div class="pdp-gallery-main">
+        {% if product.images %}
+          <img id="mainImage" src="{{ url_for('static', filename='uploads/products/' + product.images[0].filename) }}" alt="{{ product.name }}">
+        {% else %}
+          <div class="placeholder" style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px;">🎀</div>
+        {% endif %}
+      </div>
+      {% if product.images|length > 1 %}
+      <div class="pdp-thumbs">
+        {% for img in product.images %}
+        <img src="{{ url_for('static', filename='uploads/products/' + img.filename) }}"
+             class="{{ 'active' if loop.first }}"
+             onclick="document.getElementById('mainImage').src=this.src; document.querySelectorAll('.pdp-thumbs img').forEach(function(t){t.classList.remove('active')}); this.classList.add('active');">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="pdp-info">
+      {% if product.category %}<span class="cat-label">{{ product.category.name }}</span>{% endif %}
+      <h1>{{ product.name }}</h1>
+      <div class="pdp-price">
+        <span>{{ CURRENCY }}{{ "%.0f"|format(product.display_price) }}</span>
+        {% if product.is_on_sale %}
+        <span class="price-strike" style="font-size:17px;">{{ CURRENCY }}{{ "%.0f"|format(product.price) }}</span>
+        <span class="badge-sale" style="position:static;">-{{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+
+      {% if product.description %}<p class="pdp-desc">{{ product.description }}</p>{% endif %}
+
+      <form action="{{ url_for('shop.cart_add') }}" method="post" id="addToCartForm">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+
+        {% if product.variants %}
+        <div class="variant-group">
+          <label class="title">Select Size</label>
+          <div class="variant-options">
+            {% for v in product.variants %}
+            <label class="variant-pill {{ 'disabled' if v.stock_qty <= 0 }}">
+              <input type="radio" name="variant_id" value="{{ v.id }}"
+                     {{ 'disabled' if v.stock_qty <= 0 }}
+                     {{ 'checked' if loop.first and v.stock_qty > 0 }}
+                     data-stock="{{ v.stock_qty }}">
+              {{ v.label }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="stock-note" id="stockNote"></div>
+        </div>
+        {% endif %}
+
+        <div class="variant-group">
+          <label class="title">Quantity</label>
+          <div class="qty-stepper">
+            <button type="button" onclick="stepQty(-1)">−</button>
+            <input type="number" name="qty" id="qtyInput" value="1" min="1" readonly>
+            <button type="button" onclick="stepQty(1)">+</button>
+          </div>
+        </div>
+
+        <div class="pdp-actions">
+          <button type="submit" class="btn btn-primary" {{ 'disabled' if product.variants and not product.in_stock }}>
+            🛍️ Add to Cart
+          </button>
+          <a href="{{ url_for('shop.cart_view') }}" class="btn btn-ghost">View Cart</a>
+        </div>
+      </form>
+
+      <div style="margin-top:26px; display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--ink-soft);">
+        <span>🚚 Nationwide Delivery</span>
+        <span>💵 Cash on Delivery</span>
+        <span>🔁 Easy Size Exchange</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if related %}
+<section class="section" style="background:var(--white);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">You may also like</span>
+      <h2>More from {{ product.category.name if product.category else 'this collection' }}</h2>
+    </div>
+    <div class="product-grid">
+      {% for p in related %}
+        {% include "partials/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function stepQty(delta) {
+    const input = document.getElementById('qtyInput');
+    let val = parseInt(input.value || '1', 10) + delta;
+    if (val < 1) val = 1;
+    input.value = val;
+  }
+  const radios = document.querySelectorAll('input[name="variant_id"]');
+  const note = document.getElementById('stockNote');
+  function updateStockNote() {
+    const checked = document.querySelector('input[name="variant_id"]:checked');
+    if (!note) return;
+    if (!checked) { note.textContent = ''; return; }
+    const stock = parseInt(checked.dataset.stock, 10);
+    if (stock <= 0) { note.textContent = 'Out of stock'; note.className = 'stock-note stock-out'; }
+    else if (stock <= 3) { note.textContent = 'Only ' + stock + ' left!'; note.className = 'stock-note stock-low'; }
+    else { note.textContent = 'In stock'; note.className = 'stock-note stock-ok'; }
+  }
+  radios.forEach(r => r.addEventListener('change', updateStockNote));
+  updateStockNote();
+</script>
+{% endblock %}

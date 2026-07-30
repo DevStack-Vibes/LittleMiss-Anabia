@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Homepage Settings{% endblock %}
+
+{% block content %}
+<form method="post">
+  <div class="card">
+    <h2>Hero Banner Text</h2>
+    <div class="form-row">
+      <label for="hero_headline">Headline</label>
+      <input type="text" id="hero_headline" name="hero_headline" value="{{ hero_headline }}">
+      <div class="help-text">Shown in large script font at the top of the homepage.</div>
+    </div>
+    <div class="form-row">
+      <label for="hero_sub">Subheading</label>
+      <textarea id="hero_sub" name="hero_sub" rows="3">{{ hero_sub }}</textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>
+{% endblock %}

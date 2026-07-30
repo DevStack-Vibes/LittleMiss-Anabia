@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Order Placed — {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="success-card">
+      <div class="ico">🎉</div>
+      <h2 class="script" style="color:var(--pink-deep); font-size:30px; margin:10px 0;">Thank you, {{ order.customer_name.split(' ')[0] }}!</h2>
+      <p style="color:var(--ink-soft);">Your order has been placed successfully and will be delivered via <strong>Cash on Delivery</strong>.</p>
+      <div class="order-number">{{ order.order_number }}</div>
+
+      <div style="text-align:left; background:var(--cream); border-radius:16px; padding:18px 22px; margin:20px 0;">
+        {% for item in order.items %}
+        <div class="summary-row"><span>{{ item.product_name }}{% if item.variant_label %} ({{ item.variant_label }}){% endif %} × {{ item.quantity }}</span><span>{{ CURRENCY }}{{ "%.0f"|format(item.line_total) }}</span></div>
+        {% endfor %}
+        <div class="summary-row"><span>Subtotal</span><span>{{ CURRENCY }}{{ "%.0f"|format(order.subtotal) }}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>{{ 'Free' if order.shipping_fee == 0 else CURRENCY ~ '%.0f'|format(order.shipping_fee) }}</span></div>
+        <div class="summary-row total"><span>Total (Pay on Delivery)</span><span>{{ CURRENCY }}{{ "%.0f"|format(order.total) }}</span></div>
+      </div>
+
+      <p style="font-size:13.5px; color:var(--ink-soft);">We'll deliver to: {{ order.address }}, {{ order.city }}</p>
+
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+        <a href="{{ url_for('shop.shop_all') }}" class="btn btn-primary">Continue Shopping</a>
+        <a href="{{ url_for('shop.track_order') }}" class="btn btn-outline">Track This Order</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

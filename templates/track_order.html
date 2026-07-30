@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Track Your Order — {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="{{ url_for('shop.index') }}">Home</a> / Track Order</div>
+  <h1>Track Your Order</h1>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:640px;">
+    <div class="form-card">
+      <form method="post">
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="order_number">Order Number</label>
+            <input type="text" id="order_number" name="order_number" placeholder="LMA-260730-1234" required>
+          </div>
+          <div class="form-row">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="03XX-XXXXXXX" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Track Order</button>
+      </form>
+    </div>
+
+    {% if order %}
+    <div class="form-card" style="margin-top:24px;">
+      <h3 class="script" style="color:var(--pink-deep); margin-top:0;">Order {{ order.order_number }}</h3>
+      <p style="color:var(--ink-soft); font-size:14px;">Placed on {{ order.created_at.strftime('%d %b %Y') }}</p>
+
+      {% if order.status == 'Cancelled' %}
+        <div class="flash flash-danger">This order has been cancelled.</div>
+      {% else %}
+      <div class="timeline">
+        {% set flow = ['Pending', 'Confirmed', 'Packed', 'Shipped', 'Delivered'] %}
+        {% set current_index = flow.index(order.status) if order.status in flow else 0 %}
+        {% for step in flow %}
+        <div class="timeline-step {{ 'done' if loop.index0 < current_index else ('current' if loop.index0 == current_index else '') }}">
+          <div class="timeline-dot">{{ '✓' if loop.index0 <= current_index else loop.index }}</div>
+          <span class="label">{{ step }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div style="margin-top:20px;">
+        {% for item in order.items %}
+        <div class="summary-row"><span>{{ item.product_name }}{% if item.variant_label %} ({{ item.variant_label }}){% endif %} × {{ item.quantity }}</span><span>{{ CURRENCY }}{{ "%.0f"|format(item.line_total) }}</span></div>
+        {% endfor %}
+        <div class="summary-row total"><span>Total</span><span>{{ CURRENCY }}{{ "%.0f"|format(order.total) }}</span></div>
+      </div>
+    </div>
+    {% elif searched %}
+    <div class="empty-state">
+      <div class="ico">🔍</div>
+      <p>No matching order found. Please double-check your order number and phone.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

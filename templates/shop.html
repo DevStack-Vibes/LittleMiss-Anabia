@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ active_category.name if active_category else 'Shop All' }} — {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="{{ url_for('shop.index') }}">Home</a> / Shop</div>
+  <h1>{{ active_category.name if active_category else 'Shop All' }}</h1>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="shop-layout">
+      <aside class="filters">
+        <h4>Categories</h4>
+        <ul>
+          <li><a href="{{ url_for('shop.shop_all') }}" class="{{ 'active' if not active_category else '' }}">All Products</a></li>
+          {% for cat in categories %}
+          <li><a href="{{ url_for('shop.shop_all', category=cat.slug) }}" class="{{ 'active' if active_category and active_category.id == cat.id else '' }}">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </aside>
+
+      <div>
+        <div class="shop-toolbar">
+          <span style="color:var(--ink-soft); font-size:14px;">{{ products|length }} product{{ 's' if products|length != 1 else '' }}</span>
+          <form method="get">
+            {% if active_category %}<input type="hidden" name="category" value="{{ active_category.slug }}">{% endif %}
+            <select name="sort" onchange="this.form.submit()">
+              <option value="new" {{ 'selected' if sort=='new' }}>Newest First</option>
+              <option value="price_low" {{ 'selected' if sort=='price_low' }}>Price: Low to High</option>
+              <option value="price_high" {{ 'selected' if sort=='price_high' }}>Price: High to Low</option>
+            </select>
+          </form>
+        </div>
+
+        {% if products %}
+        <div class="product-grid">
+          {% for p in products %}
+            {% include "partials/product_card.html" %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="ico">🎀</div>
+          <h3>No products here yet</h3>
+          <p>Check back soon — new arrivals are added regularly!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

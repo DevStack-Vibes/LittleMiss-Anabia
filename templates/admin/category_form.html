@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit Category' if category else 'Add Category' }}{% endblock %}
+{% block page_title %}{{ 'Edit Category' if category else 'Add Category' }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+  <div class="card">
+    <div class="form-row">
+      <label for="name">Category Name</label>
+      <input type="text" id="name" name="name" value="{{ category.name if category else '' }}" required placeholder="e.g. Party Frocks">
+    </div>
+    <div class="form-row">
+      <label for="description">Description (optional)</label>
+      <textarea id="description" name="description" rows="3">{{ category.description if category else '' }}</textarea>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="sort_order">Sort Order</label>
+        <input type="number" id="sort_order" name="sort_order" value="{{ category.sort_order if category else 0 }}">
+        <div class="help-text">Lower numbers appear first on the homepage.</div>
+      </div>
+      <label class="checkbox-row" style="align-self:center;">
+        <input type="checkbox" name="is_active" {{ 'checked' if not category or category.is_active }}> Active (visible on store)
+      </label>
+    </div>
+    <div class="form-row">
+      <label for="image">Category Image</label>
+      {% if category and category.image %}
+      <div class="thumb-chip"><img src="{{ url_for('static', filename='uploads/products/' + category.image) }}" alt=""></div>
+      {% endif %}
+      <input type="file" id="image" name="image" accept="image/*">
+      <div class="help-text">Shown as the round thumbnail on the "Shop by Category" section.</div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">{{ 'Save Changes' if category else 'Create Category' }}</button>
+  <a href="{{ url_for('admin.categories') }}" class="btn btn-ghost">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,44 @@
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="name">Little Miss <span style="font-size:14px; font-family:'Quicksand',sans-serif; color:var(--ink-soft);">by Anabia</span></div>
+      <p>Twirl-worthy dresses, rompers &amp; ethnic wear for your little princess — handpicked with love, shipped nationwide across Pakistan.</p>
+      <div class="social-row">
+        <a href="{{ STORE_INSTAGRAM }}" title="Instagram" target="_blank" rel="noopener">📷</a>
+        <a href="{{ STORE_FACEBOOK }}" title="Facebook" target="_blank" rel="noopener">📘</a>
+        <a href="{{ STORE_WHATSAPP }}" title="WhatsApp" target="_blank" rel="noopener">💬</a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="{{ url_for('shop.shop_all') }}">All Products</a></li>
+        {% for cat in nav_categories %}
+        <li><a href="{{ url_for('shop.shop_all', category=cat.slug) }}">{{ cat.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Help</h5>
+      <ul>
+        <li><a href="{{ url_for('shop.track_order') }}">Track Your Order</a></li>
+        <li><a href="{{ url_for('shop.cart_view') }}">Cart</a></li>
+        <li><a href="{{ STORE_WHATSAPP }}" target="_blank" rel="noopener">WhatsApp Support</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Get In Touch</h5>
+      <ul>
+        <li>📍 {{ STORE_PHONE }}</li>
+        <li>✉️ {{ STORE_EMAIL }}</li>
+        <li>🇵🇰 Nationwide Cash on Delivery</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © {{ (2026) }} Little Miss by Anabia. Made with 💕 for little princesses everywhere.
+  </div>
+</footer>

@@ -1,0 +1,30 @@
+<header class="navbar">
+  <div class="navbar-inner">
+    <a href="{{ url_for('shop.index') }}" class="brand">
+      <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="{{ STORE_NAME }} logo">
+      <div class="brand-text">
+        <span class="name">Little Miss</span>
+        <span class="tag">by Anabia</span>
+      </div>
+    </a>
+
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="{{ url_for('shop.index') }}">Home</a></li>
+        <li><a href="{{ url_for('shop.shop_all') }}">Shop All</a></li>
+        {% for cat in nav_categories %}
+        <li><a href="{{ url_for('shop.shop_all', category=cat.slug) }}">{{ cat.name }}</a></li>
+        {% endfor %}
+        <li><a href="{{ url_for('shop.track_order') }}">Track Order</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="{{ url_for('shop.cart_view') }}" class="icon-btn" title="Cart">
+        🛍️
+        {% if cart_item_count %}<span class="cart-badge">{{ cart_item_count }}</span>{% endif %}
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    </div>
+  </div>
+</header>

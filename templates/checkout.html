@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Checkout — {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="{{ url_for('shop.index') }}">Home</a> / <a href="{{ url_for('shop.cart_view') }}">Cart</a> / Checkout</div>
+  <h1>Checkout</h1>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="checkout-layout">
+      <div class="form-card">
+        <div class="cod-note">💵 Cash on Delivery — pay in cash when your order arrives at your doorstep.</div>
+        <form method="post">
+          <div class="form-row">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" value="{{ form.name or '' }}" required placeholder="e.g. Ayesha Khan">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" value="{{ form.phone or '' }}" required placeholder="03XX-XXXXXXX">
+            </div>
+            <div class="form-row">
+              <label for="email">Email (optional)</label>
+              <input type="email" id="email" name="email" value="{{ form.email or '' }}" placeholder="you@example.com">
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="address">Delivery Address</label>
+            <textarea id="address" name="address" rows="3" required placeholder="House #, Street, Area">{{ form.address or '' }}</textarea>
+          </div>
+          <div class="form-row">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" value="{{ form.city or '' }}" required placeholder="e.g. Lahore">
+          </div>
+          <div class="form-row">
+            <label for="notes">Order Notes (optional)</label>
+            <textarea id="notes" name="notes" rows="2" placeholder="Any special instructions?">{{ form.notes or '' }}</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Place Order — Cash on Delivery</button>
+        </form>
+      </div>
+
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+        {% for item in items %}
+        <div class="summary-row">
+          <span>{{ item.product.name }}{% if item.variant %} ({{ item.variant.label }}){% endif %} × {{ item.qty }}</span>
+          <span>{{ CURRENCY }}{{ "%.0f"|format(item.line_total) }}</span>
+        </div>
+        {% endfor %}
+        <div class="summary-row"><span>Subtotal</span><span>{{ CURRENCY }}{{ "%.0f"|format(subtotal) }}</span></div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>{{ 'Free' if shipping_fee == 0 else CURRENCY ~ '%.0f'|format(shipping_fee) }}</span>
+        </div>
+        <div class="summary-row total"><span>Total</span><span>{{ CURRENCY }}{{ "%.0f"|format(total) }}</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

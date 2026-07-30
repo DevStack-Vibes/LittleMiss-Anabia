@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block page_title %}Order {{ order.order_number }}{% endblock %}
+
+{% block content %}
+{% set badge_map = {'Pending':'badge-pending','Confirmed':'badge-confirmed','Packed':'badge-packed','Shipped':'badge-shipped','Delivered':'badge-delivered','Cancelled':'badge-cancelled'} %}
+
+<div class="form-grid" style="align-items:start;">
+  <div>
+    <div class="card">
+      <h2>Customer &amp; Delivery</h2>
+      <p><strong>{{ order.customer_name }}</strong><br>
+      📞 {{ order.phone }}{% if order.email %} · ✉️ {{ order.email }}{% endif %}<br>
+      📍 {{ order.address }}, {{ order.city }}</p>
+      {% if order.notes %}<p><strong>Notes:</strong> {{ order.notes }}</p>{% endif %}
+      <p style="color:var(--a-ink-soft); font-size:13px;">Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }} · Payment: {{ order.payment_method }}</p>
+    </div>
+
+    <div class="card">
+      <h2>Items</h2>
+      <table class="admin-table">
+        <thead><tr><th></th><th>Product</th><th>Size / Variant</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+        <tbody>
+          {% for item in order.items %}
+          <tr>
+            <td>
+              {% if item.image %}
+              <img class="table-thumb" src="{{ url_for('static', filename='uploads/products/' + item.image) }}" alt="">
+              {% else %}
+              <div class="table-thumb" style="display:flex;align-items:center;justify-content:center;">🎀</div>
+              {% endif %}
+            </td>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_label or '—' }}</td>
+            <td>{{ CURRENCY }}{{ "%.0f"|format(item.unit_price) }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ CURRENCY }}{{ "%.0f"|format(item.line_total) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="max-width:280px; margin-left:auto; margin-top:16px;">
+        <div class="summary-row" style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:6px;"><span>Subtotal</span><span>{{ CURRENCY }}{{ "%.0f"|format(order.subtotal) }}</span></div>
+        <div class="summary-row" style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:6px;"><span>Shipping</span><span>{{ 'Free' if order.shipping_fee == 0 else CURRENCY ~ '%.0f'|format(order.shipping_fee) }}</span></div>
+        <div class="summary-row" style="display:flex; justify-content:space-between; font-size:16px; font-weight:700; border-top:2px dashed #F0E2D8; padding-top:8px;"><span>Total</span><span>{{ CURRENCY }}{{ "%.0f"|format(order.total) }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>Order Status</h2>
+      <p>Current status: <span class="badge {{ badge_map.get(order.status,'') }}">{{ order.status }}</span></p>
+      <form method="post" action="{{ url_for('admin.order_update_status', order_id=order.id) }}">
+        <div class="form-row">
+          <label for="status">Update Status</label>
+          <select name="status" id="status">
+            {% for s in ['Pending','Confirmed','Packed','Shipped','Delivered','Cancelled'] %}
+            <option value="{{ s }}" {{ 'selected' if order.status == s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+      </form>
+    </div>
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-ghost btn-block">← Back to All Orders</a>
+  </div>
+</div>
+{% endblock %}

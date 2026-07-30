@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+
+{% block content %}
+{% set badge_map = {'Pending':'badge-pending','Confirmed':'badge-confirmed','Packed':'badge-packed','Shipped':'badge-shipped','Delivered':'badge-delivered','Cancelled':'badge-cancelled'} %}
+<div class="card">
+  <div class="card-head">
+    <div class="filter-pills">
+      <a href="{{ url_for('admin.orders') }}" class="{{ 'active' if not status }}">All</a>
+      {% for s in ['Pending','Confirmed','Packed','Shipped','Delivered','Cancelled'] %}
+      <a href="{{ url_for('admin.orders', status=s) }}" class="{{ 'active' if status == s }}">{{ s }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if orders %}
+  <table class="admin-table">
+    <thead><tr><th>Order #</th><th>Customer</th><th>Phone</th><th>City</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for o in orders %}
+      <tr onclick="window.location='{{ url_for('admin.order_detail', order_id=o.id) }}'" style="cursor:pointer;">
+        <td><strong>{{ o.order_number }}</strong></td>
+        <td>{{ o.customer_name }}</td>
+        <td>{{ o.phone }}</td>
+        <td>{{ o.city }}</td>
+        <td>{{ CURRENCY }}{{ "%.0f"|format(o.total) }}</td>
+        <td><span class="badge {{ badge_map.get(o.status,'') }}">{{ o.status }}</span></td>
+        <td>{{ o.created_at.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-hint"><div class="ico">📦</div>No orders found for this filter.</div>
+  {% endif %}
+</div>
+{% endblock %}

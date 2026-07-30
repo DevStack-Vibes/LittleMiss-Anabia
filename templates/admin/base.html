@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin{% endblock %} — {{ STORE_NAME }}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.jpeg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="admin-body">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="{{ url_for('admin.dashboard') }}" class="brand">
+        <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="logo">
+        <div>
+          <div class="name">Little Miss</div>
+          <div class="sub">Admin Panel</div>
+        </div>
+      </a>
+      <nav class="admin-nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">📊 <span class="label">Dashboard</span></a>
+        <a href="{{ url_for('admin.products') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.product') }}">👗 <span class="label">Products</span></a>
+        <a href="{{ url_for('admin.categories') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.categor') }}">🎀 <span class="label">Categories</span></a>
+        <a href="{{ url_for('admin.orders') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.order') }}">📦 <span class="label">Orders</span></a>
+        <a href="{{ url_for('admin.settings') }}" class="{{ 'active' if request.endpoint == 'admin.settings' }}">⚙️ <span class="label">Settings</span></a>
+        <a href="{{ url_for('admin.change_password') }}" class="{{ 'active' if request.endpoint == 'admin.change_password' }}">🔒 <span class="label">Password</span></a>
+      </nav>
+      <div class="foot">
+        Logged in as <strong>{{ current_user.username }}</strong><br>
+        <a href="{{ url_for('admin.logout') }}">Log out</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        <a href="{{ url_for('shop.index') }}" target="_blank" class="view-store">🌐 View Store</a>
+      </div>
+
+      <div class="admin-flash-wrap">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="admin-content">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
